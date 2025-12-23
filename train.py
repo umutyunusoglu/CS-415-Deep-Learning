@@ -35,6 +35,7 @@ CONFIG = {
     "num_workers": 4,
     "sample_rate": 16000,
     "hop_length": 512,
+    "patience" :10,
     "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
 }
 print(f"🚀 Running on device: {CONFIG['device']}")
@@ -215,7 +216,7 @@ def train_model():
     best_val_loss = float("inf")
 
     print("🔥 Eğitim Başlıyor...")
-
+    early_stop_counter=0
     for epoch in range(CONFIG["epochs"]):
         # --- TRAIN STEP ---
         model.train()
@@ -316,6 +317,14 @@ def train_model():
             )
             best_val_loss = avg_val_loss
             torch.save(model.state_dict(), CONFIG["save_path"])
+            early_stop_counter=0
+        else:
+            early_stop_counter += 1
+            print(f"   (No improvement for {early_stop_counter} epochs)")
+            if early_stop_counter >= CONFIG["patience"]:
+                print("🛑 Early Stopping Triggered!")
+                break
+
         print("-" * 50)
 
     plot_training_results(history)
