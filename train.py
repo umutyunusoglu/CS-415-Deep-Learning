@@ -22,12 +22,12 @@ from model import TranscriptionNet
 # 1. CONFIGURATION
 # ==========================================
 CONFIG = {
-    "raw_data_dir": r"D:\Ana\Projeler\CS 415\CS-415-Deep-Learning\Data\slakh\dataset",
-    "root_dir": r"D:\Ana\Projeler\CS 415\CS-415-Deep-Learning\Data\slakh\processed",
+    "raw_data_dir": r"C:\Users\teoma\Downloads\slakh_raw",
+    "root_dir": r"C:\Users\teoma\Downloads\slakh_processed",
     "save_path": "model_piano.pth",
     "target_class": "Piano",
     "sequence_length": 128,
-    "batch_size": 32,
+    "batch_size": 16,
     "learning_rate": 0.0003,
     "pos_weight": 5.0,
     "epochs": 100,
@@ -88,10 +88,10 @@ def plot_training_results(history):
 # ==========================================
 # 3. PREPROCESSING
 # ==========================================
-def preprocess_dataset():
+def preprocess_dataset(input_data: str):
     # Sadece Train klasörünü baz alıyoruz, çünkü validation'ı random split ile ayıracağız
-    input_dir = os.path.join(CONFIG["raw_data_dir"], "train")
-    output_dir = CONFIG["root_dir"]
+    input_dir = os.path.join(CONFIG["raw_data_dir"], input_data)
+    output_dir = os.path.join(CONFIG["root_dir"], input_data)
     os.makedirs(output_dir, exist_ok=True)
 
     tracks = sorted(glob.glob(os.path.join(input_dir, "Track*")))
@@ -161,18 +161,20 @@ def preprocess_dataset():
 def train_model():
     print(f"🚀 Veri Seti Yükleniyor...")
 
-    full_dataset = SlakhChunkedDataset(
-        root_dir=CONFIG["root_dir"], sequence_length=CONFIG["sequence_length"]
+    train_dataset = SlakhChunkedDataset(
+        root_dir=os.path.join(CONFIG["root_dir"], "train"),
+        sequence_length=CONFIG["sequence_length"],
     )
 
-    # --- TRAIN / VALIDATION SPLIT (%80 - %20) ---
-    train_size = int(0.8 * len(full_dataset))
-    val_size = len(full_dataset) - train_size
-    train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
+    val_dataset = SlakhChunkedDataset(
+        root_dir=os.path.join(CONFIG["root_dir"], "validation"),
+        sequence_length=CONFIG["sequence_length"],
+    )   
 
     print(
-        f"📊 Veri Bölümü: {len(full_dataset)} Toplam -> {train_size} Train | {val_size} Validation"
+        f"📊 Veri Bölümü: {len(train_dataset)} Train | {len(val_dataset)} Validation"
     )
+
 
     train_loader = DataLoader(
         train_dataset,
@@ -324,16 +326,14 @@ def train_model():
 # 5. MAIN (AUTO DETECT)
 # ==========================================
 if __name__ == "__main__":
-    # Processed klasörünü kontrol et
-    processed_files = glob.glob(os.path.join(CONFIG["root_dir"], "*.pt"))
+    # train ve validation ayrı ayrı preprocess edilir
+    for split in ["train", "validation"]:
+        processed_files = glob.glob(os.path.join(CONFIG["root_dir"], split, "*.pt"))
 
-    if len(processed_files) == 0:
-        print("⚠️ İşlenmiş veri bulunamadı. Preprocessing başlatılıyor...")
-        preprocess_dataset()
-    else:
-        print(
-            f"✅ {len(processed_files)} adet işlenmiş dosya bulundu. Preprocess atlanıyor."
-        )
-
-    # Her durumda eğitime başla
+        if len(processed_files) == 0:
+            print(f"⚠️ {split} için işlenmiş veri bulunamadı. Preprocessing başlatılıyor...")
+            preprocess_dataset(split)
+        else:
+            print(f"✅ {split}: {len(processed_files)} adet işlenmiş dosya bulundu. Preprocess atlanıyor.")
+    
     train_model()
