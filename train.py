@@ -22,8 +22,8 @@ from model import TranscriptionNet
 # 1. CONFIGURATION
 # ==========================================
 CONFIG = {
-    "raw_data_dir": r"C:\Users\teoma\Downloads\slakh_raw",
-    "root_dir": r"C:\Users\teoma\Downloads\slakh_processed",
+    "raw_data_dir": r"D:\Ana\Projeler\CS 415\CS-415-Deep-Learning\Data\slakh\dataset",
+    "root_dir": r"D:\Ana\Projeler\CS 415\CS-415-Deep-Learning\Data\slakh\processed",
     "save_path": "model_piano.pth",
     "target_class": "Piano",
     "sequence_length": 128,
@@ -35,7 +35,7 @@ CONFIG = {
     "num_workers": 4,
     "sample_rate": 16000,
     "hop_length": 512,
-    "patience" :10,
+    "patience": 10,
     "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
 }
 print(f"🚀 Running on device: {CONFIG['device']}")
@@ -170,12 +170,9 @@ def train_model():
     val_dataset = SlakhChunkedDataset(
         root_dir=os.path.join(CONFIG["root_dir"], "validation"),
         sequence_length=CONFIG["sequence_length"],
-    )   
-
-    print(
-        f"📊 Veri Bölümü: {len(train_dataset)} Train | {len(val_dataset)} Validation"
     )
 
+    print(f"📊 Veri Bölümü: {len(train_dataset)} Train | {len(val_dataset)} Validation")
 
     train_loader = DataLoader(
         train_dataset,
@@ -216,7 +213,7 @@ def train_model():
     best_val_loss = float("inf")
 
     print("🔥 Eğitim Başlıyor...")
-    early_stop_counter=0
+    early_stop_counter = 0
     for epoch in range(CONFIG["epochs"]):
         # --- TRAIN STEP ---
         model.train()
@@ -311,13 +308,18 @@ def train_model():
 
         scheduler.step(avg_val_loss)
 
+        # --- MODEL CHECKPOINTING & EARLY STOPPING ---
+        chkpoint_name = f"epoch_{epoch + 1}_model.pth"
+        torch.save(model.state_dict(), chkpoint_name)
+        print(f"   💾 Model checkpoint kaydedildi: {chkpoint_name}")
+
         if avg_val_loss < best_val_loss:
             print(
                 f"   ⭐ New Best Model! Saving... ({best_val_loss:.4f} -> {avg_val_loss:.4f})"
             )
             best_val_loss = avg_val_loss
             torch.save(model.state_dict(), CONFIG["save_path"])
-            early_stop_counter=0
+            early_stop_counter = 0
         else:
             early_stop_counter += 1
             print(f"   (No improvement for {early_stop_counter} epochs)")
@@ -340,9 +342,13 @@ if __name__ == "__main__":
         processed_files = glob.glob(os.path.join(CONFIG["root_dir"], split, "*.pt"))
 
         if len(processed_files) == 0:
-            print(f"⚠️ {split} için işlenmiş veri bulunamadı. Preprocessing başlatılıyor...")
+            print(
+                f"⚠️ {split} için işlenmiş veri bulunamadı. Preprocessing başlatılıyor..."
+            )
             preprocess_dataset(split)
         else:
-            print(f"✅ {split}: {len(processed_files)} adet işlenmiş dosya bulundu. Preprocess atlanıyor.")
-    
+            print(
+                f"✅ {split}: {len(processed_files)} adet işlenmiş dosya bulundu. Preprocess atlanıyor."
+            )
+
     train_model()
