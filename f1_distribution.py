@@ -276,7 +276,7 @@ def run_full_test():
             label=f"Mean: {mean_dist:.2f} px",
         )
         plt.title("Chamfer (Move-Based) Distance Distribution")
-        plt.xlabel("Average Pixel Shift Error (Lower is Better)")
+        plt.xlabel("Average Pixel Shift Error")
         plt.ylabel("Count")
         plt.legend()
         plt.grid(True, alpha=0.3)
