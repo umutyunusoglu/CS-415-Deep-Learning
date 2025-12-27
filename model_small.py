@@ -47,42 +47,42 @@ class TranscriptionNetSmall(nn.Module):
     def __init__(self):
         super().__init__()
 
-        # --- 1. CNN (Görüntü İşleme / Özellik Çıkarma) ---
-        # Frekans eksenini sıkıştıracağız, Zaman eksenine dokunmayacağız.
         self.conv_blocks = nn.Sequential(
             CNNBlock(1, 32),  # [B, 32, 229, T]
             CNNBlock(32, 64, pool=True),  # [B, 64, 114, T]
-            CNNBlock(64, 128, pool=True),  # [B, 128, 57, T]
-            CNNBlock(128, 256, pool=True),  # [B, 256, 28, T]
+            CNNBlock(64, 64, pool=True),  # [B, 64, 57, T]  <-- 128 yerine 64
+            CNNBlock(64, 128, pool=True),  # [B, 128, 28, T] <-- 256 yerine 128
         )
 
-        # CNN Çıkış boyutu: 512 kanal * 28 frekans = 14336
-        cnn_out_size = 512 * 28
-        d_model = 512  # Transformer'ın çalışacağı boyut
+        # HESAP: 128 kanal * 28 frekans = 3584
+        # Önceki modelde bu 7168 idi. Tam %50 tasarruf!
+        cnn_out_size = 128 * 28
+        d_model = 256  # Bunu düşürme, polifoni (akorlar) için lazım.
 
-        # --- 2. PROJECTION & POSITIONAL ENCODING ---
+        # --- 2. PROJECTION ---
+        # Artık burası 1.8M değil, 0.9M parametre.
         self.projection = nn.Linear(cnn_out_size, d_model)
-        self.pos_encoder = PositionalEncoding(d_model, dropout=0.1)
+        self.pos_encoder = PositionalEncoding(d_model, dropout=0.2)  # Dropout artırıldı
 
-        # --- 3. TRANSFORMER ENCODER (LSTM Yerine Gelen Güç) ---
-        # GPU dostu, paralel, stabil.
+        # --- 3. TRANSFORMER ---
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model,
-            nhead=4,  # 8 farklı açıdan bakar
-            dim_feedforward=512,  # Ara katman genişliği
-            dropout=0.1,
-            batch_first=True,  # [Batch, Time, Feat] formatı için şart
-            norm_first=True,  # Pre-Norm: Eğitim kararlılığını artırır (NaN düşmanıdır)
+            nhead=4,  # 8 kafa şart değil, 4 yeterli
+            dim_feedforward=512,
+            dropout=0.2,  # Overfit varsa dropout'u 0.1 -> 0.2 yap
+            batch_first=True,
+            norm_first=True,
         )
+        # 3 katman iyidir, ama çok hız lazımsa 2'ye düşebilirsin.
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=3)
 
         # --- 4. CLASSIFIER ---
         self.fc = nn.Sequential(
-            nn.LayerNorm(d_model),  # Son bir normalizasyon
-            nn.Linear(d_model, 1),
+            nn.LayerNorm(d_model),
+            nn.Linear(d_model, 128),  # Ara katmanı biraz daralttık
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(256, 88),  # 88 Piyano tuşu
+            nn.Linear(128, 88),
         )
 
     def forward(self, x):
