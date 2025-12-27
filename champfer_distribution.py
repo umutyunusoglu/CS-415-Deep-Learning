@@ -123,8 +123,8 @@ def plot_contour_landscape(
 
     ax.axhline(0, color="white", linestyle=":", alpha=0.4)
     ax.axvline(0, color="white", linestyle=":", alpha=0.4)
-    ax.set_xlim(-xlim, xlim)
-    ax.set_ylim(-ylim, ylim)
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-2, 2)
 
     plt.legend(loc="upper right")
     plt.tight_layout()
