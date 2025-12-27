@@ -25,9 +25,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # ==========================================
 CONFIG = {
     "raw_data_dir": "c:\\Users\\Jade\\Documents\\GPUvenv\\slakh2100_flac_redux",
-    "root_dir": "processed_guitar_slakh",
-    "save_path": "model_xlstm_guitar.pth",
-    "target_class": "Electric Guitar",
+    "root_dir": "processed_bass_slakh",
+    "save_path": "model_xlstm_bass.pth",
+    "target_class": "Bass",
     "sequence_length": 128,
     "batch_size": 32,
     "learning_rate": 0.0001, # xLSTM genelde daha düşük LR sever
@@ -83,7 +83,7 @@ def preprocess_dataset(input_data: str):
 
         for stem_key, info in meta["stems"].items():
             should_process = (
-                 CONFIG["target_class"] in info["midi_program_name"] 
+                 CONFIG["target_class"] == info["inst_class"] 
             )
             if should_process:
                 mid_path = os.path.join(track_path, "MIDI", f"{stem_key}.mid")
