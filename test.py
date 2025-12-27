@@ -5,7 +5,7 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import pretty_midi
 import os
-from model import TranscriptionNet  # Model dosyanın yanında olmalı
+from model import TranscriptionNetSmall  # Model dosyanın yanında olmalı
 
 # ================= CONFIG =================
 CONFIG = {
@@ -49,7 +49,7 @@ def run_test():
     print(f"🧪 Test Modu Başlatılıyor... ({CONFIG['device']})")
 
     # 1. Modeli Yükle
-    model = TranscriptionNet().to(CONFIG["device"])
+    model = TranscriptionNetSmall().to(CONFIG["device"])
     try:
         model.load_state_dict(
             torch.load(CONFIG["model_path"], map_location=CONFIG["device"])

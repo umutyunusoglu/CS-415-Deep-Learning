@@ -16,7 +16,7 @@ import yaml
 # Custom Imports
 # (Eğer SlakhChunkedDataset'i ayrı dosyaya koymadıysan bu class'ı scriptin içine yapıştır)
 from Data.dataset import SlakhChunkedDataset
-from model import TranscriptionNet
+from model_small import TranscriptionNetSmall
 
 # ==========================================
 # 1. CONFIGURATION
@@ -191,7 +191,7 @@ def train_model():
         persistent_workers=True,
     )
 
-    model = TranscriptionNet().to(CONFIG["device"])
+    model = TranscriptionNetSmall().to(CONFIG["device"])
 
     # Mel Spectrogram Setup
     mel_layer = torchaudio.transforms.MelSpectrogram(

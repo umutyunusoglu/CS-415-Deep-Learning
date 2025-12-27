@@ -13,7 +13,7 @@ import random
 
 # Model dosyasının (model.py) yanınızda olduğundan emin olun
 try:
-    from model import TranscriptionNet
+    from model import TranscriptionNetSmall
 except ImportError:
     print(
         "⚠️ UYARI: 'model.py' bulunamadı. Sadece preprocessing yapacaksanız sorun yok."
@@ -130,7 +130,7 @@ def evaluate_dataset():
     # Chunk boyutu (Bellek hatası almamak için 4000 frame)
     EVAL_CHUNK_SIZE = 4000
 
-    model = TranscriptionNet().to(CONFIG["device"])
+    model = TranscriptionNetSmall().to(CONFIG["device"])
     try:
         model.load_state_dict(
             torch.load(CONFIG["model_path"], map_location=CONFIG["device"])
@@ -224,7 +224,7 @@ def visualize_single_example():
     """Mutlaka notanın olduğu bir kesiti bulup görselleştirir."""
     print("\n🎨 Görselleştirme Başlıyor (Nota içeren kesit aranıyor)...")
 
-    model = TranscriptionNet().to(CONFIG["device"])
+    model = TranscriptionNetSmall().to(CONFIG["device"])
     try:
         model.load_state_dict(
             torch.load(CONFIG["model_path"], map_location=CONFIG["device"])

@@ -13,7 +13,7 @@ import glob
 from tqdm import tqdm
 
 # Custom Imports
-from model import TranscriptionNet
+from model import TranscriptionNetSmall
 
 # ================= CONFIG =================
 CONFIG = {
@@ -190,7 +190,7 @@ def process_file_windows(model, mel_layer, filepath):
 def run_full_test():
     print(f"🚀 Initializing Eval with Chamfer Distance on {CONFIG['device']}...")
 
-    model = TranscriptionNet().to(CONFIG["device"])
+    model = TranscriptionNetSmall().to(CONFIG["device"])
     model.load_state_dict(
         torch.load(CONFIG["model_path"], map_location=CONFIG["device"])
     )
