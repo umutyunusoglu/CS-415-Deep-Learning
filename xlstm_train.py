@@ -170,7 +170,7 @@ def train_model():
     
     # --- RESUME LOGIC ---
     start_epoch = 0
-    best_val_f1 = 0.0
+    best_val_loss = 1
     history = {"train_loss": [], "val_loss": [], "train_f1": [], "val_f1": []}
 
     if os.path.exists(CONFIG["save_path"]):
@@ -180,7 +180,7 @@ def train_model():
             model.load_state_dict(checkpoint['model_state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             start_epoch = checkpoint['epoch']
-            best_val_f1 = checkpoint['best_val_f1']
+            best_val_loss = checkpoint['best_val_loss']
             history = checkpoint.get('history', history)
             print(f"✅ Epoch {start_epoch} üzerinden devam ediliyor.")
         else:
@@ -258,14 +258,14 @@ def train_model():
 
         scheduler.step(metrics['val_loss'])
 
-        if metrics['val_f1'] > best_val_f1:
-            print(f"⭐ New Best F1! Saving... ({best_val_f1:.4f} -> {metrics['val_f1']:.4f})")
-            best_val_f1 = metrics['val_f1']
+        if metrics['val_loss'] < best_val_loss:
+            print(f"⭐ New Best Loss! Saving... ({best_val_loss:.4f} -> {metrics['val_loss']:.4f})")
+            best_val_loss = metrics['val_loss']
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'best_val_f1': best_val_f1,
+                'best_val_loss': best_val_loss,
                 'history': history
             }, CONFIG["save_path"])
             early_stop_counter = 0
