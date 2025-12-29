@@ -281,8 +281,16 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 
     # Load Model
     model = CNN_xLSTM_AMT().to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.eval()
+
+    checkpoint = torch.load(model_path, map_location=device)
+
+    # Check if it is a dictionary containing the model state
+    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        model.load_state_dict(checkpoint["model_state_dict"])
+    else:
+        # Fallback in case you have other files that are just weights
+        model.load_state_dict(checkpoint)
+        model.eval()
 
     # Mel Transform
     mel_layer = torchaudio.transforms.MelSpectrogram(
@@ -323,7 +331,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 if __name__ == "__main__":
     # Parametreleri BURADAN değiştir:
     run_evaluation(
-        model_path="D:\Ana\Projeler\CS 415\model_xlstm_bass.pth",
+        model_path="D:\Ana\Projeler\CS 415\model_xlstm_guitar.pth",
         processed_dir="D:\Ana\Projeler\CS 415\processed_test_slakh",
-        instrument_name="Bass XLSTM",
+        instrument_name="Guitar XLSTM",
     )
