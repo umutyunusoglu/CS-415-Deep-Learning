@@ -324,5 +324,5 @@ if __name__ == "__main__":
     run_evaluation(
         model_path="D:\Ana\Projeler\CS 415\piyano transformer\model_piano.pth",
         processed_dir="D:\Ana\Projeler\CS 415\processed_test_slakh",
-        instrument_name="Piano",
+        instrument_name="Piano Transformer",
     )
