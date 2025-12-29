@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 # Custom Imports (model.py dosyanın yanında olmalı)
 from model import TranscriptionNet
+from xlstm import CNN_xLSTM_AMT
 
 # ================= STATIC CONFIG =================
 # Değişmeyen hiperparametreler
@@ -279,7 +280,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
     print(f"   Data:  {processed_dir}")
 
     # Load Model
-    model = TranscriptionNet().to(device)
+    model = CNN_xLSTM_AMT().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
@@ -322,7 +323,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 if __name__ == "__main__":
     # Parametreleri BURADAN değiştir:
     run_evaluation(
-        model_path="D:\Ana\Projeler\CS 415\piyano transformer\model_piano.pth",
+        model_path="D:\Ana\Projeler\CS 415\model_xlstm_bass.pth",
         processed_dir="D:\Ana\Projeler\CS 415\processed_test_slakh",
-        instrument_name="Piano Transformer",
+        instrument_name="Bass XLSTM",
     )
