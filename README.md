@@ -39,7 +39,7 @@ Both architectures share a foundational CNN front-end that functions as a "featu
 * **xLSTM Stack:** Utilizes **mLSTM blocks** that are fully parallelizable across the temporal dimension, matching Transformer training speeds while retaining a recurrent inductive bias.
 
 ### 3. Classification Head
-A standardized head consisting of **Layer Normalization**, a fully connected network with **ReLU** and **Dropout** ($p=0.3$), projecting to **88 output units** (MIDI indices 21-109).
+A standardized head consisting of **Layer Normalization**, a fully connected network with **ELU** and **Dropout** ($p=0.3$), projecting to **88 output units** (MIDI indices 21-109).
 
 ---
 
@@ -64,4 +64,4 @@ The project utilizes the **Slakh2100** dataset, providing synthesized polyphonic
 
 ---
 
-# Contributors: Yeşim Tosun, Umut Yunusoğlu, Damla Uçar, Teoman Arabul
+Contributors: Yeşim Tosun, Umut Yunusoğlu, Damla Uçar, Teoman Arabul
