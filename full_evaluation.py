@@ -7,12 +7,12 @@ import glob
 import scipy.ndimage
 from tqdm import tqdm
 
-# Custom Imports (model.py dosyanın yanında olmalı)
+# Custom Imports (make sure model.py is nearby the file)
 from model import TranscriptionNet
 from xlstm import CNN_xLSTM_AMT
 
 # ================= STATIC CONFIG =================
-# Değişmeyen hiperparametreler
+# Hyperparameters 
 CONFIG = {
     "sequence_length": 128,  # approx 4 seconds
     "sample_rate": 16000,
@@ -22,8 +22,6 @@ CONFIG = {
 }
 
 # ================= METRIC FUNCTIONS =================
-
-
 def calculate_f1_batch(preds, targets):
     batch_size = preds.shape[0]
     scores = []
@@ -100,8 +98,6 @@ def get_displacement_vectors(preds, targets):
 
 
 # ================= PROCESS LOOP =================
-
-
 def process_file(model, mel_layer, filepath, device):
     """Runs inference ONCE and returns all metrics together."""
     try:
@@ -175,8 +171,6 @@ def process_file(model, mel_layer, filepath, device):
 
 
 # ================= PLOTTING =================
-
-
 def plot_combined_results(
     f1_scores, chamfer_scores, time_errors, pitch_errors, instrument_name
 ):
@@ -258,12 +252,10 @@ def plot_combined_results(
 
     save_path = f"evaluation_results_{instrument_name.lower()}.png"
     plt.savefig(save_path, dpi=300, bbox_inches="tight")
-    print(f"\n✨ Plot saved to: {save_path}")
+    print(f"\n Plot saved to: {save_path}")
 
 
 # ================= MAIN RUNNER FUNCTION =================
-
-
 def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
     """
     Main entry point for evaluation.
@@ -275,7 +267,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 
     # Device setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Starting Eval for {instrument_name} on {device}")
+    print(f" Starting Eval for {instrument_name} on {device}")
     print(f"   Model: {model_path}")
     print(f"   Data:  {processed_dir}")
 
@@ -302,7 +294,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 
     # Load Files
     test_files = glob.glob(os.path.join(processed_dir, "*.pt"))
-    print(f"📊 Processing {len(test_files)} files...")
+    print(f" Processing {len(test_files)} files...")
 
     all_f1, all_chamfer, all_dt, all_dp = [], [], [], []
 
@@ -317,7 +309,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
     mean_f1 = np.mean(all_f1) if all_f1 else 0
     mean_dist = np.mean(all_chamfer) if all_chamfer else 0
     print("\n" + "=" * 40)
-    print(f"📈 RESULTS SUMMARY: {instrument_name}")
+    print(f" RESULTS SUMMARY: {instrument_name}")
     print(f"   Mean F1 Score:       {mean_f1:.4f}")
     print(f"   Mean Chamfer Dist:   {mean_dist:.4f}")
     print(f"   Total Windows:       {len(all_f1)}")
@@ -329,7 +321,7 @@ def run_evaluation(model_path, processed_dir, instrument_name="Piano"):
 
 
 if __name__ == "__main__":
-    # Parametreleri BURADAN değiştir:
+    # Change the parameters here. 
     run_evaluation(
         model_path="D:\Ana\Projeler\CS 415\model_xlstm_guitar.pth",
         processed_dir="D:\Ana\Projeler\CS 415\processed_test_slakh",
